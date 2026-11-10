@@ -93,3 +93,4 @@ Inside the extension popup, switch to the **Settings** tab to configure your pre
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
