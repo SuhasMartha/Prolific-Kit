@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prolific Study Notifier Pro</title>
+  <!-- Google Fonts for Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" defer></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="header-logo">
+        <img src="prolific_logo.png" alt="Prolific" class="logo-img">
+      </div>
+      <div class="header-status">
+        <span class="last-fetch-text">Last fetch: <strong id="lbl-last-checked">Never</strong></span>
+        <button class="header-refresh-btn" id="btn-check-now" title="Check Now">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Panels Container -->
+    <main class="tab-panels">
+
+      <!-- Panel 1: Studies Tab -->
+      <section id="tab-studies" class="tab-panel active">
+        <!-- Earnings Dashboard Grid -->
+        <div class="earnings-dashboard">
+          <div class="earnings-card-item active-bal">
+            <div class="card-item-icon">💰</div>
+            <div class="card-item-info">
+              <span class="card-item-lbl">Active Balance</span>
+              <span class="card-item-val" id="lbl-balance">£0.00</span>
+            </div>
+          </div>
+          <div class="earnings-card-item pending-bal">
+            <div class="card-item-icon">⏳</div>
+            <div class="card-item-info">
+              <span class="card-item-lbl">Pending Balance</span>
+              <span class="card-item-val pending" id="lbl-pending">£0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Summary Card -->
+        <div class="settings-card ai-summary-card"
+          style="margin-bottom: 2px; padding: 12px 14px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, rgba(168, 85, 247, 0.04) 100%); border-color: rgba(99, 102, 241, 0.12);">
+          <div class="ai-summary-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span class="ai-icon"
+              style="font-size: 13px; filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.2));">🤖</span>
+            <h3
+              style="margin: 0; font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; text-transform: uppercase;">
+              AI Summary & Insights</h3>
+          </div>
+          <p id="lbl-ai-summary" class="slider-subtext"
+            style="margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--text-primary);">Analyzing
+            opportunities...</p>
+        </div>
+
+        <!-- Active Studies List -->
+        <div class="studies-list-container">
+          <div class="studies-list" id="active-studies-list">
+            <!-- Waiting for studies placeholder layout -->
+            <div class="empty-feed" id="empty-active-placeholder">
+              <div class="waiting-circle">
+                <img src="prolific_tea.png" alt="Waiting..." class="waiting-mug-img">
+              </div>
+              <h2>Waiting for studies</h2>
+              <span>Check your <a href="https://app.prolific.com/about-you" target="_blank" class="about-you-link">About
+                  You</a> page to ensure your profile is up to date and you're eligible for more studies.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel 2: History Tab -->
+      <section id="tab-history" class="tab-panel">
+        <!-- Study Radar Analytics Card -->
+        <div class="settings-card radar-card" style="margin: 12px 16px 4px 16px;">
+          <div class="radar-header" id="radar-toggle-header">
+            <div class="radar-title-container" style="display: flex; align-items: center; gap: 8px;">
+              <span class="settings-icon" style="font-size: 14px;">📊</span>
+              <h3 style="margin: 0; font-size: 12px; font-weight: 600;">Study Radar Analytics</h3>
+            </div>
+            <span class="radar-toggle-icon" id="radar-toggle-icon">▼</span>
+          </div>
+          <div class="radar-body" id="radar-body-content" style="display: none;">
+            <p class="slider-subtext"
+              style="margin-top: 0; margin-bottom: 8px; font-size: 10px; color: var(--text-secondary);">Peak study times
+              based on when alerts appeared. Darker squares indicate more studies found during that hour.</p>
+            <div class="heatmap-container" id="radar-heatmap">
+              <!-- Heatmap rows generated dynamically -->
+            </div>
+            <div class="heatmap-legend"
+              style="display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 8px; font-size: 9px; color: var(--text-secondary);">
+              <span>Fewer</span>
+              <div class="legend-scale" style="display: flex; gap: 2px;">
+                <span class="legend-box lvl-0"
+                  style="width: 9px; height: 9px; border-radius: 1px; background: var(--heatmap-lvl-0);"></span>
+                <span class="legend-box lvl-1"
+                  style="width: 9px; height: 9px; border-radius: 1px; background: var(--heatmap-lvl-1);"></span>
+                <span class="legend-box lvl-2"
+                  style="width: 9px; height: 9px; border-radius: 1px; background: var(--heatmap-lvl-2);"></span>
+                <span class="legend-box lvl-3"
+                  style="width: 9px; height: 9px; border-radius: 1px; background: var(--heatmap-lvl-3);"></span>
+              </div>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-feed-container">
+
+          <div class="feed-header">
+            <h2 style="white-space: nowrap;">Discovered Studies</h2>
+            <div class="feed-filter-tabs" style="display: flex; gap: 6px; margin-left: 10px; margin-right: auto;">
+              <button class="btn-filter-tab active" id="filter-history-all">All</button>
+              <button class="btn-filter-tab" id="filter-history-missed">Missed</button>
+            </div>
+            <div class="feed-header-actions">
+              <button class="btn btn-text-link" id="btn-export-history">Export</button>
+              <span class="action-separator">|</span>
+              <button class="btn btn-text-link" id="btn-clear-history">Clear</button>
+            </div>
+          </div>
+          <div class="studies-list" id="studies-list">
+            <!-- History empty state placeholder -->
+            <div class="empty-feed" id="empty-feed-placeholder">
+              <div class="waiting-circle gray-circle">
+                <img src="prolific_tea.png" alt="No History" class="waiting-mug-img history-mug">
+              </div>
+              <h2>No history captured yet</h2>
+              <span>Discovered study alerts will be saved here while this extension is active.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel 3: Settings Tab -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="settings-container">
+
+          <!-- Extension Switch Indicator Card -->
+          <div class="settings-card switch-card">
+            <div class="status-indicator">
+              <span class="pulse-dot" id="status-dot"></span>
+              <div class="status-text-container">
+                <span class="status-label">Checker Service</span>
+                <span class="status-value" id="status-text">Active</span>
+              </div>
+            </div>
+            <label class="switch-container">
+              <input type="checkbox" id="checker-toggle" checked>
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <!-- Theme Selector Toggle Card -->
+          <div class="settings-card switch-card">
+            <div class="status-indicator">
+              <span class="theme-icon">🌙</span>
+              <div class="status-text-container">
+                <span class="status-label">Appearance</span>
+                <span class="status-value">Dark Mode</span>
+              </div>
+            </div>
+            <label class="switch-container">
+              <input type="checkbox" id="theme-toggle">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <!-- Widget toggle switch card -->
+          <div class="settings-card switch-card">
+            <div class="status-indicator">
+              <span class="theme-icon">📌</span>
+              <div class="status-text-container">
+                <span class="status-label">Browser Widget</span>
+                <span class="status-value">Floating Dashboard</span>
+              </div>
+            </div>
+            <label class="switch-container">
+              <input type="checkbox" id="overlay-toggle">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+
+          <!-- Persistent Notifications toggle switch card -->
+          <div class="settings-card switch-card" style="flex-wrap: wrap;">
+            <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
+              <div class="status-indicator">
+                <span class="theme-icon">🔁</span>
+                <div class="status-text-container">
+                  <span class="status-label">Persistent Alerts</span>
+                  <span class="status-value">Notify until acknowledged</span>
+                </div>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="persistent-notifications-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div id="persistent-interval-container"
+              style="width: 100%; margin-top: 10px; display: none; border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: 10px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; margin-bottom: 8px;">
+                <label for="persistent-interval-select" style="font-weight: 500; color: var(--text-secondary);">Reminder
+                  Interval</label>
+                <select id="persistent-interval-select" class="form-select"
+                  style="width: auto; padding: 4px 8px; font-size: 12px; height: auto;">
+                  <option value="15" selected>15 seconds</option>
+                  <option value="30">30 seconds</option>
+                  <option value="45">45 seconds</option>
+                  <option value="60">60 seconds</option>
+                  <option value="120">2 minutes</option>
+                  <option value="300">5 minutes</option>
+                </select>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                <label for="persistent-max-alerts-select" style="font-weight: 500; color: var(--text-secondary);">Number
+                  of Alerts</label>
+                <select id="persistent-max-alerts-select" class="form-select"
+                  style="width: auto; padding: 4px 8px; font-size: 12px; height: auto;">
+                  <option value="1">1 alert</option>
+                  <option value="2">2 alerts</option>
+                  <option value="3">3 alerts</option>
+                  <option value="4">4 alerts</option>
+                  <option value="5" selected>5 alerts</option>
+                  <option value="6">6 alerts</option>
+                  <option value="7">7 alerts</option>
+                  <option value="8">8 alerts</option>
+                  <option value="9">9 alerts</option>
+                  <option value="10">10 alerts</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sound alert control Card -->
+          <div class="settings-card sound-card">
+            <div class="card-header-flex">
+              <div class="card-title-container">
+                <span class="settings-icon">🔊</span>
+                <h3>Alert sound</h3>
+              </div>
+            </div>
+
+            <div class="sound-control-row">
+              <div class="sound-controls-flex">
+                <select id="sound-select" class="form-select">
+                  <option value="chime">Classic Chime</option>
+                  <option value="beep">Digital Beep</option>
+                  <option value="synth">Space Synth</option>
+                  <option value="melody">Echo Melody</option>
+                  <option value="voice">Voice</option>
+                  <option value="sweet">Sweet Ding</option>
+                  <option value="cosmic">Cosmic Shimmer</option>
+                  <option value="alert">Alert Tone</option>
+                  <option value="nuclear">Nuclear Siren</option>
+                  <option value="laser">Laser Zap</option>
+                  <option value="success">Triumphant Alert</option>
+                </select>
+                <button class="btn btn-try" id="btn-test-sound">TRY</button>
+                <label class="switch-container compact">
+                  <input type="checkbox" id="sound-toggle" checked>
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="slider-group" style="margin-top: 6px;">
+              <div class="slider-label-row">
+                <span class="slider-title">Volume</span>
+                <span class="slider-display-val" id="lbl-sound-volume">100%</span>
+              </div>
+              <div class="slider-input-container">
+                <span class="slider-ticks-label">0%</span>
+                <input type="range" id="sound-volume-range" min="0" max="100" step="5" value="100" class="form-range">
+                <span class="slider-ticks-label">100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters Card (Reward, hourly, places sliders) -->
+          <div class="settings-card filter-card">
+            <div class="card-header-flex">
+              <h3>Study Filters</h3>
+            </div>
+
+            <!-- Minimum Reward Slider -->
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">Minimum reward to notify</span>
+                <span class="slider-display-val" id="lbl-min-reward">£0.00 ($0.00)</span>
+              </div>
+              <div class="slider-input-container">
+                <span class="slider-ticks-label">£0</span>
+                <input type="range" id="min-reward-range" min="0" max="30" step="0.5" value="0" class="form-range">
+                <span class="slider-ticks-label">£30</span>
+              </div>
+              <p class="slider-subtext">Studies paying less than this amount will be ignored.</p>
+            </div>
+
+            <!-- Minimum Hourly Reward Slider -->
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">Minimum hourly reward to notify</span>
+                <span class="slider-display-val" id="lbl-min-hourly">£0.00/hr ($0.00/hr)</span>
+              </div>
+              <div class="slider-input-container">
+                <span class="slider-ticks-label">£0</span>
+                <input type="range" id="min-hourly-range" min="0" max="30" step="0.5" value="0" class="form-range">
+                <span class="slider-ticks-label">£30</span>
+              </div>
+              <p class="slider-subtext">Studies paying less per hour will be ignored.</p>
+            </div>
+
+            <!-- Minimum Available Places Slider -->
+            <div class="slider-group">
+              <div class="slider-label-row">
+                <span class="slider-title">Minimum available places</span>
+                <span class="slider-display-val" id="lbl-min-places">1</span>
+              </div>
+              <div class="slider-input-container">
+                <span class="slider-ticks-label">1</span>
+                <input type="range" id="min-places-range" min="1" max="100" step="1" value="1" class="form-range">
+                <span class="slider-ticks-label">100</span>
+              </div>
+              <p class="slider-subtext">Studies with fewer available places will be ignored.</p>
+            </div>
+
+            <!-- Re-appeared study cooldown -->
+            <div class="form-row-select">
+              <div class="row-label-with-help">
+                <label for="cooldown-select">Re-appeared study cooldown</label>
+              </div>
+              <select id="cooldown-select" class="form-select full-width">
+                <option value="1" selected>1 minute</option>
+                <option value="5">5 minutes</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="120">2 hours</option>
+                <option value="240">4 hours</option>
+                <option value="720">12 hours</option>
+                <option value="1440">24 hours</option>
+              </select>
+              <p class="slider-subtext">A study must be gone at least this long before re-appeared alerts are sent.</p>
+            </div>
+
+            <!-- Advanced keyword filter -->
+            <div class="keyword-filter-group">
+              <div class="row-label-with-flex">
+                <div class="row-label-with-help">
+                  <label for="keyword-toggle">Advanced keyword filter</label>
+                  <a href="https://participant-help.prolific.com/hc/en-gb" target="_blank" class="learn-more-link"
+                    title="Only alert when study title contains at least one of these comma-separated keywords.">Learn
+                    more</a>
+                </div>
+                <label class="switch-container compact">
+                  <input type="checkbox" id="keyword-toggle">
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+              <div class="keyword-textarea-container" id="group-keyword-textarea" style="display: none;">
+                <textarea id="keyword-textarea"
+                  placeholder="Enter keywords separated by commas (e.g. game, survey, decision)"
+                  class="form-input keyword-textarea"></textarea>
+              </div>
+              <p class="slider-subtext">Only send alerts when the study title contains one of your keywords. Case
+                doesn't matter.</p>
+            </div>
+          </div>
+
+          <!-- Researcher Controls Card -->
+          <div class="settings-card researcher-card">
+            <div class="card-header-flex">
+              <h3>Researcher Controls</h3>
+            </div>
+
+            <div class="form-group">
+              <label for="txt-favorite-researchers"
+                style="font-size: 11px; color: var(--text-secondary); font-weight: 600;">⭐ Favorite Researchers
+                (Comma-separated names/IDs)</label>
+              <textarea id="txt-favorite-researchers" placeholder="Dr. Jane Doe, 60d9aade..." class="form-input"
+                style="resize: vertical; min-height: 45px; font-family: var(--font-family); font-size: 12.5px;"></textarea>
+              <p class="slider-subtext">Studies from these researchers will highlight in gold and sound a premium alert.
+              </p>
+            </div>
+
+            <div class="form-group" style="border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 4px;">
+              <label for="txt-blocked-researchers"
+                style="font-size: 11px; color: var(--text-secondary); font-weight: 600;">🚫 Blocked Researchers
+                (Comma-separated names/IDs)</label>
+              <textarea id="txt-blocked-researchers" placeholder="Dr. Bad, 5f4e321b..." class="form-input"
+                style="resize: vertical; min-height: 45px; font-family: var(--font-family); font-size: 12.5px;"></textarea>
+              <p class="slider-subtext">Studies from these researchers will be hidden and muted automatically.</p>
+            </div>
+          </div>
+
+          <!-- Automation & Startup Options Card -->
+          <div class="settings-card">
+            <h3>Automation</h3>
+            <div class="row-label-with-flex" style="margin-bottom: 12px;">
+              <label for="startup-toggle"
+                style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary);">Open Prolific on browser
+                startup</label>
+              <label class="switch-container compact">
+                <input type="checkbox" id="startup-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="row-label-with-flex">
+              <label for="focus-toggle"
+                style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary);">Auto-open new study in
+                separate tab</label>
+              <label class="switch-container compact">
+                <input type="checkbox" id="focus-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="row-label-with-flex"
+              style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <label for="open-in-new-window-toggle"
+                  style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary);">🪟 Open study in new
+                  window</label>
+                <p class="slider-subtext" style="margin: 2px 0 0 0;">Opens the study in a separate browser window
+                  instead of the current window.</p>
+              </div>
+              <label class="switch-container compact">
+                <input type="checkbox" id="open-in-new-window-toggle" checked>
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Telegram Notification Settings -->
+          <div class="settings-card channel-card">
+            <div class="card-header">
+              <div class="channel-info">
+                <div class="channel-icon telegram-color">✈️</div>
+                <div>
+                  <h3 class="card-title">Telegram Notifications</h3>
+                  <p class="card-desc">Sends updates via custom Telegram bot</p>
+                </div>
+              </div>
+              <label class="switch-container compact">
+                <input type="checkbox" id="telegram-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="card-body" id="telegram-body">
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label for="txt-telegram-token">Telegram Bot Token (Optional)</label>
+                <input type="password" id="txt-telegram-token" placeholder="Paste bot token from @BotFather" class="form-input">
+                <p class="slider-subtext">Optional custom bot token. Leave blank to use default, or paste your bot token from @BotFather.</p>
+              </div>
+              <!-- QR Code Connection Box -->
+              <div class="telegram-qr-container" id="telegram-qr-container" style="display: none;">
+                <div class="qr-divider"></div>
+                <div class="qr-content-flex">
+                  <div class="qr-code-box">
+                    <img id="telegram-qr-img" src="" alt="Scan to start bot">
+                  </div>
+                  <div class="qr-instructions">
+                    <span class="qr-step-title">Connect Bot Instantly:</span>
+                    <ol class="qr-steps-list">
+                      <li>Scan QR code or click <a id="telegram-bot-link" href="#" target="_blank"
+                          class="about-you-link">this link</a></li>
+                      <li>Press <strong>Start</strong> in Telegram</li>
+                    </ol>
+                    <div class="qr-status-indicator" id="telegram-qr-status">
+                      <span class="qr-status-dot pulse-dot active checking" id="telegram-qr-dot"></span>
+                      <span id="telegram-qr-status-text">Waiting for /start...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discord Notification Settings -->
+          <div class="settings-card channel-card">
+            <div class="card-header">
+              <div class="channel-info">
+                <div class="channel-icon discord-color">💬</div>
+                <div>
+                  <h3 class="card-title">Discord Notifications</h3>
+                  <p class="card-desc">Sends updates to a Discord channel via webhook</p>
+                </div>
+              </div>
+              <label class="switch-container compact">
+                <input type="checkbox" id="discord-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="card-body" id="discord-body" style="display: none;">
+              <div class="form-group">
+                <label for="txt-discord-webhook">Webhook URL</label>
+                <input type="text" id="txt-discord-webhook" placeholder="https://discord.com/api/webhooks/..."
+                  class="form-input">
+                <p class="slider-subtext">Create a Webhook integration in your Discord server channel settings and paste
+                  the URL here.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ntfy Notification Settings -->
+          <div class="settings-card channel-card">
+            <div class="card-header">
+              <div class="channel-info">
+                <div class="channel-icon ntfy-color">📢</div>
+                <div>
+                  <h3 class="card-title">ntfy Notifications</h3>
+                  <p class="card-desc">Sends updates via ntfy.sh (Free & Open Source)</p>
+                </div>
+              </div>
+              <label class="switch-container compact">
+                <input type="checkbox" id="ntfy-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="card-body" id="ntfy-body" style="display: none;">
+              <div class="form-group">
+                <label for="txt-ntfy-topic">Topic Name</label>
+                <input type="text" id="txt-ntfy-topic" placeholder="e.g. prolific_alerts_123" class="form-input">
+                <p class="slider-subtext">Download the <strong>ntfy</strong> app on your device and subscribe to this
+                  topic name. Keep it random/private.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pushover Notification Settings -->
+          <div class="settings-card channel-card">
+            <div class="card-header">
+              <div class="channel-info">
+                <div class="channel-icon pushover-color">📨</div>
+                <div>
+                  <h3 class="card-title">Pushover Notifications</h3>
+                  <p class="card-desc">Sends updates to Pushover app</p>
+                </div>
+              </div>
+              <label class="switch-container compact">
+                <input type="checkbox" id="pushover-toggle">
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+            <div class="card-body" id="pushover-body" style="display: none;">
+              <div class="form-group">
+                <label for="txt-pushover-user">User Key</label>
+                <input type="text" id="txt-pushover-user" placeholder="e.g. u1234567890abcdef..." class="form-input">
+              </div>
+              <div class="form-group" style="margin-top: 6px;">
+                <label for="txt-pushover-token">API Token / App Token</label>
+                <input type="text" id="txt-pushover-token" placeholder="e.g. az1234567890abcdef..." class="form-input">
+                <p class="slider-subtext">Create an application on <a href="https://pushover.net" target="_blank"
+                    class="about-you-link">pushover.net</a> to get a token.</p>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Polling Check Frequency Card -->
+          <div class="settings-card">
+            <h3>Polling Frequency Control</h3>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="range-labels">
+                  <label for="polling-range">Check Frequency</label>
+                  <span class="range-val" id="lbl-polling-interval">60s</span>
+                </div>
+                <div class="slider-input-container">
+                  <span class="slider-ticks-label">10s</span>
+                  <input type="range" id="polling-range" min="10" max="180" step="10" value="60" class="form-range">
+                  <span class="slider-ticks-label">3m</span>
+                </div>
+                <div class="alert-box warning">
+                  <svg class="alert-icon" viewBox="0 0 24 24">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                  </svg>
+                  <span>For real-time speeds (10s–50s), the extension polls dynamically via your open Prolific tab.
+                    Background alarm checks fallback to 1-minute minimum.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Links & Account Panel -->
+          <div class="settings-card links-card">
+            <span class="section-meta-label">LINKS</span>
+            <a href="https://suhasmartha.github.io/Prolific-Kit/" target="_blank" class="nav-link-item">📊 Prolific Insights Dashboard</a>
+            <a href="https://app.prolific.com/studies" target="_blank" class="nav-link-item">Studies on Prolific</a>
+            <a href="https://app.prolific.com/account" target="_blank" class="nav-link-item">My Account</a>
+            <a href="https://app.prolific.com/about-you" target="_blank" class="nav-link-item">About You</a>
+
+            <span class="section-meta-label" style="margin-top: 14px;">ACCOUNT</span>
+            <a href="#" id="btn-sign-out" class="nav-link-item logout-red">Sign out</a>
+          </div>
+
+          <!-- Manual test triggers -->
+          <div class="settings-actions">
+            <button class="btn btn-secondary btn-full" id="btn-send-test">🧪 Send Test Desktop + Mobile Alert</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Error Banner (Hidden by default) -->
+    <div class="error-banner" id="error-banner" style="display: none;">
+      <span class="error-msg" id="error-msg-text">Error occurred.</span>
+      <button class="btn-close-error" id="btn-close-error">&times;</button>
+    </div>
+
+    <!-- Navigation Tabs (Bottom navigation bar) -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-studies" id="btn-tab-studies">
+        <svg class="tab-icon" viewBox="0 0 24 24">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
+          <path d="M21 11.09l-9 4.91-9-4.91v4.73l9 4.91 9-4.91v-4.73z" />
+        </svg>
+        Studies
+      </button>
+      <button class="tab-btn" data-tab="tab-history" id="btn-tab-history">
+        <svg class="tab-icon" viewBox="0 0 24 24">
+          <path
+            d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7 7.07 7.07 0 0 1-6-3H4.82A9 9 0 1 0 13 3zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+        </svg>
+        History
+      </button>
+      <button class="tab-btn" data-tab="tab-settings" id="btn-tab-settings">
+        <svg class="tab-icon" viewBox="0 0 24 24">
+          <path
+            d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+        </svg>
+        Settings
+      </button>
+    </nav>
+
+    <!-- Sticky Footer Link -->
+    <footer class="app-footer">
+      <a href="https://app.prolific.com/studies" target="_blank" class="footer-link">
+        Open Prolific Dashboard
+        <svg class="link-icon" viewBox="0 0 24 24">
+          <path
+            d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+        </svg>
+      </a>
+    </footer>
+  </div>
+</body>
+
+</html>

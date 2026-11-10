@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Prolific Study Notifier Pro",
+  "version": "2.2.3",
+  "description": "Monitors your Prolific dashboard in the background and sends instant notifications to your desktop and mobile device (via Telegram or Firebase).",
+  "permissions": [
+    "alarms",
+    "storage",
+    "notifications",
+    "offscreen",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.prolific.com/*",
+    "https://*.prolific.co/*",
+    "https://api.telegram.org/*",
+    "https://ntfy.sh/*",
+    "https://api.pushover.net/*",
+    "https://discord.com/api/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Prolific Study Notifier Pro",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://app.prolific.com/*",
+        "https://app.prolific.co/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inject.js"
+      ],
+      "matches": [
+        "https://app.prolific.com/*",
+        "https://app.prolific.co/*"
+      ]
+    }
+  ]
+}
